@@ -74,7 +74,7 @@ byte[] decryptedData = decryptor.getEncryptedData(
 var originalMessage = new String(decryptedData, StandardCharsets.UTF_8);
 ```
 
-See [`AS2RoundTripIT.java.java`](src/test/java/io/datachemistry/as2/integration/AS2RoundTripIT.java) for a complete working example of:
+See [`AS2RoundTripIT.java`](src/test/java/io/datachemistry/as2/integration/AS2RoundTripIT.java) for a complete working example of:
 1. Loading PEM-formatted certificates
 2. Encrypting and signing a message
 3. Decrypting and verifying the signature
