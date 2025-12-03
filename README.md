@@ -1,4 +1,4 @@
-# java-as2-crypto-utils
+# as2-crypto-utils
 
 # AS2 Crypto Library
 

@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.datachemistry</groupId>
-    <artifactId>java-as2-crypto-utils</artifactId>
-    <version>0.0.3</version>
+    <artifactId>as2-crypto-utils</artifactId>
+    <version>0.0.4</version>
 
     <packaging>jar</packaging>
 
