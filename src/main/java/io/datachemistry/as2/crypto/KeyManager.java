@@ -30,7 +30,7 @@ final class KeyManager {
      * @return the loaded private key
      * @throws AS2Exception if the key data is invalid, cannot be decrypted, or parsed
      */
-    public static PrivateKey getPrivateKey(byte[] privateKey, char[] keyPassphrase) throws AS2Exception {
+    public static PrivateKey getPrivateKey(byte[] privateKey, char[] keyPassphrase) {
         try (var pemParser = new PEMParser(new InputStreamReader(new ByteArrayInputStream(privateKey)))) {
             var pemObject = pemParser.readObject();
             var converter = new JcaPEMKeyConverter().setProvider(BOUNCY_CASTLE_PROVIDER);

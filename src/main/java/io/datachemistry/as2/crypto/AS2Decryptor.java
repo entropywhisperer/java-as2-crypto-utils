@@ -43,7 +43,7 @@ public class AS2Decryptor {
      * @param configuration the decryption configuration containing certificates and keys
      * @throws AS2Exception if certificate or key loading fails
      */
-    public AS2Decryptor(DecryptionConfig configuration) throws AS2Exception {
+    public AS2Decryptor(DecryptionConfig configuration) {
         try (configuration) {
             this.senderPublicCert = CertificateManager.getPublicCertificate(
                     Base64.getDecoder().decode(configuration.getSenderPublicCert())
@@ -62,9 +62,18 @@ public class AS2Decryptor {
      * @param encryptedData        the encrypted data bytes
      * @param decryptedContentType the expected content type after decryption
      * @return the verified and decrypted content as UTF-8 bytes
+     * @throws IllegalArgumentException if any parameter is null or empty
      * @throws AS2Exception if decryption or signature verification fails
      */
-    public byte[] getEncryptedData(byte[] encryptedData, String decryptedContentType) throws AS2Exception {
+    public byte[] decryptAndVerifyMessage(byte[] encryptedData, String decryptedContentType) {
+        if (decryptedContentType == null || decryptedContentType.isBlank()) {
+            throw new IllegalArgumentException("Decrypted content type cannot be empty");
+        }
+
+        if (encryptedData == null || encryptedData.length == 0) {
+            throw new IllegalArgumentException("Encrypted data cannot be empty");
+        }
+
         var decryptedContent = getDecryptedContent(encryptedData);
         var multipart = getSignedMimeMultipart(decryptedContent, decryptedContentType);
         var payload = getFullPayload(multipart);
@@ -84,7 +93,7 @@ public class AS2Decryptor {
      * @return the decrypted content bytes
      * @throws AS2Exception if decryption fails
      */
-    private byte[] getDecryptedContent(byte[] encryptedData) throws AS2Exception {
+    private byte[] getDecryptedContent(byte[] encryptedData) {
         try {
             logger.debug("Decrypting content with Private Key");
 
@@ -107,7 +116,7 @@ public class AS2Decryptor {
      * @throws AS2Exception if parsing fails
      */
     private MimeMultipart getSignedMimeMultipart(
-            byte[] decryptedContent, String decryptedContentType) throws AS2Exception {
+            byte[] decryptedContent, String decryptedContentType) {
         try {
             var dataSource = new ByteArrayDataSource(decryptedContent, decryptedContentType);
             return new MimeMultipart(dataSource);
@@ -123,7 +132,7 @@ public class AS2Decryptor {
      * @return the decrypted message with both raw bytes and string content
      * @throws AS2Exception if payload extraction fails
      */
-    private AS2DecryptedMessage getFullPayload(MimeMultipart multipart) throws AS2Exception {
+    private AS2DecryptedMessage getFullPayload(MimeMultipart multipart) {
         try (var outputStream = new ByteArrayOutputStream()) {
             var payloadPart = (MimeBodyPart) multipart.getBodyPart(0);
             payloadPart.writeTo(outputStream);
@@ -142,7 +151,7 @@ public class AS2Decryptor {
      * @return the content as a string
      * @throws AS2Exception if conversion fails
      */
-    private String convertToString(Object payloadContent) throws AS2Exception {
+    private String convertToString(Object payloadContent) {
         try {
             if (payloadContent instanceof SharedByteArrayInputStream inputStream) {
                 var bytes = new byte[inputStream.available()];
@@ -166,7 +175,7 @@ public class AS2Decryptor {
      * @return true if the signature is valid, false otherwise
      * @throws AS2Exception if signature verification process fails
      */
-    private boolean isSignatureValid(MimeMultipart multipart, byte[] fullPayload) throws AS2Exception {
+    private boolean isSignatureValid(MimeMultipart multipart, byte[] fullPayload) {
         try {
             var signaturePart = (MimeBodyPart) multipart.getBodyPart(1);
             var signatureBytes = signaturePart.getInputStream().readAllBytes();
