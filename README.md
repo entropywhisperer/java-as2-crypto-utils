@@ -40,7 +40,7 @@ var encryptor = new AS2Encryptor(config);
 // 3. Encrypt your message
 byte[] message = "<root>Hello, this is a secure message</root>".getBytes(StandardCharsets.UTF_8);
 
-byte[] encryptedData = encryptor.encryptMessage(
+byte[] encryptedData = encryptor.signAndEncryptMessage(
         message,                          // Your message bytes
         SignatureAlgorithm.SHA256_WITH_RSA,  // Signature algorithm
         EncryptionAlgorithm.AES_256_CBC,     // Encryption algorithm  
@@ -65,7 +65,7 @@ var config = DecryptionConfig.builder()
 var decryptor = new AS2Decryptor(config);
 
 // 3. Decrypt received message
-byte[] decryptedData = decryptor.getEncryptedData(
+byte[] decryptedData = decryptor.decryptAndVerifyMessage(
         receivedEncryptedBytes,        // Encrypted data you received
         AS2Constant.DECRYPT_CONTENT_TYPE  // Decrypt content type
 );
