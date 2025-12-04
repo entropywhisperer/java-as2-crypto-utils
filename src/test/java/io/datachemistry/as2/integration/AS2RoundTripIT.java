@@ -33,7 +33,7 @@ class AS2RoundTripIT {
     private AS2Encryptor as2Encryptor;
 
     @BeforeEach
-    void setUp() throws AS2Exception {
+    void setUp() {
         // Register Bouncy Castle provider
         Security.addProvider(new BouncyCastleProvider());
 
@@ -48,8 +48,8 @@ class AS2RoundTripIT {
     }
 
     @Test
-    void encryptMessage_SignAndEncrypt_ProperlyDecrypt() throws AS2Exception {
-        var encryptedMessage = this.as2Encryptor.encryptMessage(
+    void signAndEncryptMessage_SignAndEncrypt_ProperlyDecryptAndVerify() {
+        var encryptedMessage = this.as2Encryptor.signAndEncryptMessage(
                 TEST_PAYLOAD.getBytes(),
                 SignatureAlgorithm.SHA256_WITH_RSA,
                 EncryptionAlgorithm.AES256_CBC,
@@ -64,14 +64,14 @@ class AS2RoundTripIT {
 
         var as2Decryptor = new AS2Decryptor(decryptionConfiguration);
 
-        var result = as2Decryptor.getEncryptedData(encryptedMessage, AS2Constant.DECRYPT_CONTENT_TYPE);
+        var result = as2Decryptor.decryptAndVerifyMessage(encryptedMessage, AS2Constant.DECRYPT_CONTENT_TYPE);
 
         assertEquals(TEST_PAYLOAD, new String(result));
     }
 
     @Test
-    void encryptMessage_SignAndEncrypt_InvalidDecryptionKey() throws AS2Exception {
-        var encryptedMessage = this.as2Encryptor.encryptMessage(
+    void signAndEncryptMessage_SignAndEncrypt_InvalidDecryptionKey() {
+        var encryptedMessage = this.as2Encryptor.signAndEncryptMessage(
                 TEST_PAYLOAD.getBytes(),
                 SignatureAlgorithm.SHA256_WITH_RSA,
                 EncryptionAlgorithm.AES256_CBC,
@@ -86,7 +86,7 @@ class AS2RoundTripIT {
 
         var as2Decryptor = new AS2Decryptor(decryptionConfiguration);
 
-        var exception = assertThrows(AS2Exception.class, () -> as2Decryptor.getEncryptedData(
+        var exception = assertThrows(AS2Exception.class, () -> as2Decryptor.decryptAndVerifyMessage(
                 encryptedMessage, AS2Constant.DECRYPT_CONTENT_TYPE));
 
         assertEquals("Content decryption failed!", exception.getMessage());

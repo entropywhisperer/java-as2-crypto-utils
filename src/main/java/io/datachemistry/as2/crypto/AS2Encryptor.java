@@ -52,7 +52,7 @@ public class AS2Encryptor {
      * @param configuration the encryption configuration containing certificates and keys
      * @throws AS2Exception if certificate or key loading fails
      */
-    public AS2Encryptor(EncryptionConfig configuration) throws AS2Exception {
+    public AS2Encryptor(EncryptionConfig configuration) {
         try (configuration) {
             this.receiverPublicCert = CertificateManager.getPublicCertificate(
                     Base64.getDecoder().decode(configuration.getReceiverPublicCert())
@@ -76,14 +76,31 @@ public class AS2Encryptor {
      * @param encryptionAlgorithm the algorithm to use for encryption
      * @param contentType         the MIME content type of the payload
      * @return the encrypted and signed data as DER-encoded bytes
+     * @throws IllegalArgumentException if any parameter is null or empty
      * @throws AS2Exception if encryption or signing fails
      */
-    public byte[] encryptMessage(
+    public byte[] signAndEncryptMessage(
             byte[] payload,
             SignatureAlgorithm signatureAlgorithm,
             EncryptionAlgorithm encryptionAlgorithm,
             String contentType
-    ) throws AS2Exception {
+    ) {
+        if (signatureAlgorithm == null) {
+            throw new IllegalArgumentException("Signature algorithm cannot be null");
+        }
+
+        if (encryptionAlgorithm == null) {
+            throw new IllegalArgumentException("Encryption algorithm cannot be null");
+        }
+
+        if (contentType == null || contentType.isBlank()) {
+            throw new IllegalArgumentException("Content type cannot be empty");
+        }
+
+        if (payload == null || payload.length == 0) {
+            throw new IllegalArgumentException("Payload cannot be empty");
+        }
+
         var signedPayload = signPayload(
                 contentType,
                 payload,
@@ -105,8 +122,7 @@ public class AS2Encryptor {
      * @return a MIME multipart containing the signed content
      * @throws AS2Exception if signing fails
      */
-    private MimeMultipart signPayload(String contentType, byte[] payload, String signatureAlg)
-            throws AS2Exception {
+    private MimeMultipart signPayload(String contentType, byte[] payload, String signatureAlg) {
         try {
             logger.debug("Signing payload using algorithm: {}", signatureAlg);
 
@@ -154,8 +170,7 @@ public class AS2Encryptor {
      * @throws AS2Exception if encryption fails
      */
     private byte[] encryptPayload(
-            MimeMultipart signedPayload, X509Certificate receiverPublicCert, ASN1ObjectIdentifier encryptionAlg)
-            throws AS2Exception {
+            MimeMultipart signedPayload, X509Certificate receiverPublicCert, ASN1ObjectIdentifier encryptionAlg) {
         try {
             logger.debug("Encoding payload using encryption algorithm: {}", encryptionAlg.getId());
 

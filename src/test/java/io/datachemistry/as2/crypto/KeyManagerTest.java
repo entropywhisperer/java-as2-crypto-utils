@@ -25,7 +25,7 @@ class KeyManagerTest {
     }
 
     @Test
-    void getPrivateKey_ValidKey_PrivateKeyInitialized() throws AS2Exception {
+    void getPrivateKey_ValidKey_PrivateKeyInitialized() {
         var pemContent = AS2TestUtil.getPemContent(getClass(),"privatekeys/sender_private.pem");
 
         var privateKey = KeyManager.getPrivateKey(pemContent, PASSPHRASE);

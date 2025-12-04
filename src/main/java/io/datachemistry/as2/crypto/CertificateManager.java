@@ -24,7 +24,7 @@ final class CertificateManager {
      * @return the loaded X.509 certificate
      * @throws AS2Exception if the certificate data is invalid or cannot be parsed
      */
-    public static X509Certificate getPublicCertificate(byte[] publicCert) throws AS2Exception {
+    public static X509Certificate getPublicCertificate(byte[] publicCert) {
         try (InputStream inputStream = new ByteArrayInputStream(publicCert)) {
             var certFactory = CertificateFactory.getInstance("X.509");
             return (X509Certificate) certFactory.generateCertificate(inputStream);

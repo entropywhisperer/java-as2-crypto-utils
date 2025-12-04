@@ -24,7 +24,7 @@ class CertificateManagerTest {
     }
 
     @Test
-    void getPublicCertificate_ValidCert_X509Initialized() throws AS2Exception {
+    void getPublicCertificate_ValidCert_X509Initialized() {
         var pemContent = AS2TestUtil.getPemContent(getClass(), "publiccerts/sender_public.pem");
 
         var publicCert = CertificateManager.getPublicCertificate(pemContent);
